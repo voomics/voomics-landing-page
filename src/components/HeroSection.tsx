@@ -41,35 +41,38 @@ const HeroSection: React.FC = () => {
             </Button>
           </div>
           
-          {/* Moving social links here and making them bigger */}
-          <div className="flex justify-center space-x-8 mt-12">
-            <a 
-              href="https://facebook.com/voomics" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
-              aria-label="Facebook"
-            >
-              <Facebook size={32} />
-            </a>
-            <a 
-              href="https://instagram.com/voomics" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
-              aria-label="Instagram"
-            >
-              <Instagram size={32} />
-            </a>
-            <a 
-              href="https://linkedin.com/company/voomics" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
-              aria-label="LinkedIn"
-            >
-              <Linkedin size={32} />
-            </a>
+          {/* Social links with new highlighted text */}
+          <div className="mt-12">
+            <p className="text-white/90 font-medium mb-4">Connect with us on social media</p>
+            <div className="flex justify-center space-x-8">
+              <a 
+                href="https://facebook.com/voomics" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-white/80 transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook size={32} />
+              </a>
+              <a 
+                href="https://instagram.com/voomics" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-white/80 transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram size={32} />
+              </a>
+              <a 
+                href="https://linkedin.com/company/voomics" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-white/80 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={32} />
+              </a>
+            </div>
           </div>
           
           <div className="mt-10 pt-6 border-t border-white/20 flex flex-wrap justify-center items-center gap-6">
