@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Facebook, Instagram, Linkedin } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -22,10 +23,61 @@ const Footer: React.FC = () => {
           
           <div className="flex space-x-6">
             <a href="#" className="text-white/80 hover:text-white transition-colors">About</a>
-            <a href="#" className="text-white/80 hover:text-white transition-colors">Twitter</a>
-            <a href="#" className="text-white/80 hover:text-white transition-colors">Instagram</a>
-            <a href="#" className="text-white/80 hover:text-white transition-colors">Discord</a>
+            <a 
+              href="https://twitter.com/voomics" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Twitter
+            </a>
+            <a 
+              href="https://instagram.com/voomics" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Instagram
+            </a>
+            <a 
+              href="https://discord.gg/voomics" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Discord
+            </a>
           </div>
+        </div>
+        
+        <div className="flex justify-center space-x-6 my-8">
+          <a 
+            href="https://facebook.com/voomics" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-white/80 hover:text-white transition-colors"
+            aria-label="Facebook"
+          >
+            <Facebook size={24} />
+          </a>
+          <a 
+            href="https://instagram.com/voomics" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-white/80 hover:text-white transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram size={24} />
+          </a>
+          <a 
+            href="https://linkedin.com/company/voomics" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-white/80 hover:text-white transition-colors"
+            aria-label="LinkedIn"
+          >
+            <Linkedin size={24} />
+          </a>
         </div>
         
         <div className="border-t border-white/10 mt-8 pt-8 text-center">

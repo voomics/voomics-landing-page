@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Facebook, Instagram, Linkedin } from 'lucide-react';
 
 const HeroSection: React.FC = () => {
   const scrollToWaitlist = () => {
@@ -16,7 +17,43 @@ const HeroSection: React.FC = () => {
         <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-voomics-indigo opacity-20"></div>
       </div>
       
-      <div className="container relative z-10 pt-20 pb-16 md:pt-32 md:pb-28 px-4">
+      {/* Social links banner */}
+      <div className="relative z-10 bg-voomics-indigo/80 py-2">
+        <div className="container px-4 flex justify-center md:justify-end items-center">
+          <p className="text-white/90 text-sm mr-4 hidden md:block">Get in touch with us:</p>
+          <div className="flex space-x-4">
+            <a 
+              href="https://facebook.com/voomics" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white transition-colors"
+              aria-label="Facebook"
+            >
+              <Facebook size={18} />
+            </a>
+            <a 
+              href="https://instagram.com/voomics" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white transition-colors"
+              aria-label="Instagram"
+            >
+              <Instagram size={18} />
+            </a>
+            <a 
+              href="https://linkedin.com/company/voomics" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white transition-colors"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={18} />
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div className="container relative z-10 pt-16 pb-16 md:pt-28 md:pb-28 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-lg md:text-xl font-medium mb-3 md:mb-4">Bharat ki kahaniyan, panel-by-panel.</p>
           
