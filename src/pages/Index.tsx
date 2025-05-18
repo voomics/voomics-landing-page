@@ -1,17 +1,25 @@
 
 import React from 'react';
-import MinimalistHero from '@/components/MinimalistHero';
-import MinimalistWaitlistForm from '@/components/MinimalistWaitlistForm';
-import MinimalistFooter from '@/components/MinimalistFooter';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import ValueProps from '@/components/ValueProps';
+import AudienceSplit from '@/components/AudienceSplit';
+import SocialProof from '@/components/SocialProof';
+import WaitlistForm from '@/components/WaitlistForm';
+import Footer from '@/components/Footer';
 
 const Index: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <main className="flex-grow flex flex-col">
-        <MinimalistHero />
-        <MinimalistWaitlistForm />
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow">
+        <HeroSection />
+        <ValueProps />
+        <AudienceSplit />
+        <SocialProof />
+        <WaitlistForm />
       </main>
-      <MinimalistFooter />
+      <Footer />
     </div>
   );
 };
