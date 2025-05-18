@@ -1,4 +1,5 @@
 
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export interface WaitlistFormData {
@@ -10,25 +11,37 @@ export interface WaitlistFormData {
 
 export const submitWaitlistForm = async (data: WaitlistFormData): Promise<boolean> => {
   try {
-    // In a real implementation, this would be an API call to your backend
-    // Example:
-    // const response = await fetch('/api/waitlist', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(data),
-    // });
+    // Format the data for Supabase insert
+    const { email, mobile, role, notifyCreatorTools } = data;
     
-    // if (!response.ok) {
-    //   throw new Error('Failed to submit form');
-    // }
+    // Insert into Supabase waitlist table
+    const { error } = await supabase
+      .from('waitlist')
+      .insert([
+        { 
+          email, 
+          mobile: mobile || null, 
+          role, 
+          notify_creator_tools: notifyCreatorTools || false 
+        }
+      ]);
     
-    // For now, we'll simulate a successful submission
-    console.log("Waitlist form data submitted:", data);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (error) {
+      console.error("Error submitting waitlist form:", error);
+      
+      // Handle duplicate email error
+      if (error.code === '23505') {
+        toast.error("This email is already on the waitlist", {
+          description: "Please use a different email or check your inbox for the confirmation."
+        });
+      } else {
+        toast.error("Failed to submit form", {
+          description: "Please try again later."
+        });
+      }
+      
+      return false;
+    }
     
     // Show success message
     toast.success("Shukriya! Check your inbox for the confirmation link.", {
