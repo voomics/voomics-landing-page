@@ -12,12 +12,14 @@ export const adminLogin = async (
   password: string
 ): Promise<AdminUser | null> => {
   try {
-    // Use the RPC function to authenticate admin
-    const { data, error } = await supabase.functions.invoke('authenticate-admin', {
-      body: { email, password }
-    });
+    // Direct query to admin_users table instead of using an Edge Function
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('id, email')
+      .eq('email', email)
+      .single();
 
-    if (error || !data || data.length === 0) {
+    if (error || !data) {
       console.error("Admin login failed:", error);
       toast.error("Login failed", {
         description: "Invalid email or password."
@@ -39,7 +41,7 @@ export const adminLogin = async (
       return null;
     }
 
-    const adminUser: AdminUser = data[0];
+    const adminUser: AdminUser = data;
     
     // Set local storage to maintain admin state
     localStorage.setItem('admin_user', JSON.stringify(adminUser));
