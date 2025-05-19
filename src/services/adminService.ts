@@ -69,7 +69,9 @@ export interface WaitlistEntry {
 
 export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
-    // For testing purposes, let's add some mock data if the real data is empty
+    console.log("Fetching waitlist data...");
+    
+    // First, attempt to fetch existing data
     const { data, error } = await supabase
       .from('waitlist')
       .select('*')
@@ -82,6 +84,9 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
       });
       return [];
     }
+    
+    // Log the data to help with debugging
+    console.log("Waitlist data retrieved:", data?.length || 0, "entries");
     
     // Check if data is empty, and if so, insert some test data
     if (!data || data.length === 0) {
@@ -106,10 +111,20 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
           suggestions: null,
           story_idea: "A story about AI learning to create comics",
           file_url: null
+        },
+        {
+          email: "student@example.com",
+          role: "reader",
+          mobile: null,
+          notify_creator_tools: false,
+          suggestions: "Would love to see educational comics",
+          story_idea: null,
+          file_url: null
         }
       ];
       
       // Insert test entries
+      console.log("Inserting test entries...");
       const { data: insertedData, error: insertError } = await supabase
         .from('waitlist')
         .insert(testEntries)
@@ -117,8 +132,13 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
         
       if (insertError) {
         console.error("Error adding test data:", insertError);
+        toast.error("Could not add test data", {
+          description: insertError.message
+        });
         return [];
       }
+      
+      console.log("Test data inserted successfully:", insertedData?.length || 0, "entries");
       
       // Validate and return the inserted data
       return validateWaitlistData(insertedData || []);
