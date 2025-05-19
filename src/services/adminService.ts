@@ -92,6 +92,16 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
     console.log("Fetching waitlist data...");
     
+    // Check if admin is authenticated
+    const session = await supabase.auth.getSession();
+    if (!session.data.session) {
+      console.error("No active Supabase session for admin");
+      toast.error("Authentication required", { 
+        description: "Please log out and log back in."
+      });
+      return [];
+    }
+    
     // First, attempt to fetch existing data
     const { data, error } = await supabase
       .from('waitlist')
