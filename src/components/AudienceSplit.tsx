@@ -49,7 +49,7 @@ const AudienceSplit: React.FC = () => {
             <ul className="space-y-4 mb-8">
               <li className="flex items-start">
                 <span className="text-voomics-mint mr-2">✓</span>
-                <span>Grow your fandom with built-in promotion tools</span>
+                <span>Build your webtoon with our upcoming advanced creator tools</span>
               </li>
               <li className="flex items-start">
                 <span className="text-voomics-mint mr-2">✓</span>
@@ -62,6 +62,10 @@ const AudienceSplit: React.FC = () => {
               <li className="flex items-start">
                 <span className="text-voomics-mint mr-2">✓</span>
                 <span>Own your IP, set your pricing, reach 500M mobile readers</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-voomics-mint mr-2">🔥</span>
+                <span>For first 50 creators: free access to our cutting edge creator platform benefits, 100% revenue sharing</span>
               </li>
             </ul>
             <Button
