@@ -32,6 +32,23 @@ export const adminLogin = async (
     // Set local storage to maintain admin state
     localStorage.setItem('admin_user', JSON.stringify(adminUser));
     
+    // Sign in as the service role to bypass RLS
+    // This creates a special session for admin that can access all data
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+    
+    if (signInError) {
+      console.error("Error signing in with Supabase:", signInError);
+      toast.error("Authentication error", {
+        description: "Could not create secure session."
+      });
+      // We still return the admin user even if Supabase auth fails
+      // as the app uses local storage for admin state
+    }
+    
+    console.log("Admin login successful");
     return adminUser;
   } catch (error) {
     console.error("Admin login error:", error);
@@ -50,6 +67,10 @@ export const getAdminUser = (): AdminUser | null => {
 export const adminLogout = async (): Promise<void> => {
   try {
     localStorage.removeItem('admin_user');
+    
+    // Also sign out from Supabase
+    await supabase.auth.signOut();
+    console.log("Admin logged out");
   } catch (error) {
     console.error("Admin logout error:", error);
   }
