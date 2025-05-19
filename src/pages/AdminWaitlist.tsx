@@ -1,12 +1,10 @@
 
 import { useState, useEffect } from "react";
 import { fetchWaitlistData, WaitlistEntry } from "@/services/waitlistService";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { DashboardStats } from "@/components/admin/DashboardStats";
-import { WaitlistCharts } from "@/components/admin/WaitlistCharts";
+import { WaitlistTable } from "@/components/admin/WaitlistTable";
 
-const AdminDashboard = () => {
+const AdminWaitlist = () => {
   const [waitlistData, setWaitlistData] = useState<WaitlistEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,17 +32,15 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="mb-2 text-3xl font-bold">Dashboard</h1>
+        <h1 className="mb-2 text-3xl font-bold">Waitlist Entries</h1>
         <p className="text-muted-foreground">
-          Welcome to the Voomics admin dashboard. Here's an overview of your waitlist data.
+          View and manage all waitlist registrations.
         </p>
       </div>
       
-      <DashboardStats waitlistData={waitlistData} />
-      
-      <WaitlistCharts waitlistData={waitlistData} />
+      <WaitlistTable waitlistData={waitlistData} />
     </div>
   );
 };
 
-export default AdminDashboard;
+export default AdminWaitlist;

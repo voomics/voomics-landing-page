@@ -1,95 +1,109 @@
 
-import { supabase, STORAGE_URL } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export interface WaitlistFormData {
-  role: 'reader' | 'creator';
+export interface WaitlistEntry {
+  id: string;
   email: string;
-  mobile?: string;
-  notifyCreatorTools?: boolean;
-  suggestions?: string;
-  storyIdea?: string;
-  hasAttachment?: boolean;
+  role: 'reader' | 'creator';
+  mobile: string | null;
+  notify_creator_tools: boolean | null;
+  suggestions: string | null;
+  story_idea: string | null;
+  file_url: string | null;
+  created_at: string;
 }
 
-export const submitWaitlistForm = async (data: WaitlistFormData, file?: File | null): Promise<boolean> => {
+export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
-    // Format the data for Supabase insert
-    const { email, mobile, role, notifyCreatorTools, suggestions, storyIdea } = data;
+    console.log("Fetching waitlist data...");
     
-    let fileUrl = null;
-    
-    // Upload file if provided
-    if (file) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${role}_${Date.now()}.${fileExt}`;
-      const filePath = `${role}/${fileName}`;
-      
-      const { error: uploadError, data: uploadData } = await supabase
-        .storage
-        .from('waitlist-uploads')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-      
-      if (uploadError) {
-        console.error("Error uploading file:", uploadError);
-        toast.error("Failed to upload file", {
-          description: "Please try again later or submit without a file."
-        });
-        return false;
-      }
-      
-      fileUrl = uploadData?.path || null;
-    }
-    
-    // Insert into Supabase waitlist table
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('waitlist')
-      .insert([
-        { 
-          email, 
-          mobile: mobile || null, 
-          role, 
-          notify_creator_tools: notifyCreatorTools || false,
-          suggestions: suggestions || null,
-          story_idea: storyIdea || null,
-          file_url: fileUrl
-        }
-      ]);
-    
+      .select('*')
+      .order('created_at', { ascending: false });
+      
     if (error) {
-      console.error("Error submitting waitlist form:", error);
-      
-      // Handle duplicate email error
-      if (error.code === '23505') {
-        toast.error("This email is already on the waitlist", {
-          description: "Please use a different email or check your inbox for the confirmation."
-        });
-      } else {
-        toast.error("Failed to submit form", {
-          description: "Please try again later."
-        });
-      }
-      
-      return false;
+      console.error("Error fetching waitlist data:", error);
+      toast.error("Data fetch failed", {
+        description: "Could not retrieve waitlist data."
+      });
+      return [];
     }
     
-    // Show success message
-    toast.success("Shukriya! Check your inbox for the confirmation link.", {
-      description: "We're excited to have you join the Voomics community!"
-    });
-    
-    return true;
+    console.log("Waitlist data retrieved:", data?.length || 0, "entries");
+    return validateWaitlistData(data || []);
   } catch (error) {
-    console.error("Error submitting waitlist form:", error);
-    
-    // Show error message
-    toast.error("Failed to submit form", {
-      description: "Please try again later."
+    console.error("Waitlist data fetch error:", error);
+    toast.error("Data error", {
+      description: "An unexpected error occurred while fetching data."
     });
-    
-    return false;
+    return [];
   }
+};
+
+// Helper function to validate waitlist data
+function validateWaitlistData(data: any[]): WaitlistEntry[] {
+  return data.map(item => {
+    // Ensure role is either 'reader' or 'creator'
+    const validatedRole = item.role === 'reader' || item.role === 'creator' 
+      ? item.role as 'reader' | 'creator' 
+      : 'reader'; // Default to 'reader' if invalid
+    
+    return {
+      id: item.id,
+      email: item.email,
+      role: validatedRole,
+      mobile: item.mobile,
+      notify_creator_tools: Boolean(item.notify_creator_tools),
+      suggestions: item.suggestions,
+      story_idea: item.story_idea,
+      file_url: item.file_url,
+      created_at: item.created_at
+    } as WaitlistEntry;
+  });
+}
+
+export const exportWaitlistToCsv = (waitlistData: WaitlistEntry[]): void => {
+  if (!waitlistData.length) return;
+  
+  // Create CSV headers
+  const headers = [
+    "ID", 
+    "Email", 
+    "Role", 
+    "Mobile", 
+    "Notify Creator Tools", 
+    "Suggestions", 
+    "Story Idea", 
+    "File URL", 
+    "Created At"
+  ].join(",");
+  
+  // Create CSV rows
+  const rows = waitlistData.map(entry => [
+    entry.id,
+    entry.email,
+    entry.role,
+    entry.mobile || "",
+    entry.notify_creator_tools ? "Yes" : "No",
+    entry.suggestions ? `"${entry.suggestions.replace(/"/g, '""')}"` : "",
+    entry.story_idea ? `"${entry.story_idea.replace(/"/g, '""')}"` : "",
+    entry.file_url || "",
+    entry.created_at
+  ].join(","));
+  
+  // Combine headers and rows
+  const csv = [headers, ...rows].join("\n");
+  
+  // Create download link
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `waitlist_data_${new Date().toISOString().split("T")[0]}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
