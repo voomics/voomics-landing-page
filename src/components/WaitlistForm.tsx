@@ -1,24 +1,32 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { submitWaitlistForm, WaitlistFormData } from '@/services/waitlistService';
+import { Mail } from 'lucide-react';
 
 const WaitlistForm: React.FC = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<WaitlistFormData>({
     role: 'reader',
     email: '',
     mobile: '',
     notifyCreatorTools: false,
+    suggestions: '',
+    storyIdea: '',
+    hasAttachment: false,
   });
   const [errors, setErrors] = useState<{
     email?: string;
     mobile?: string;
+    file?: string;
   }>({});
 
   const validateEmail = (email: string) => {
@@ -32,7 +40,24 @@ const WaitlistForm: React.FC = () => {
     return re.test(mobile);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateFile = (file: File | null) => {
+    if (!file) return true; // File is optional
+    
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    if (!allowedTypes.includes(file.type)) {
+      return 'Please upload a JPEG, PNG, GIF or PDF file';
+    }
+    
+    if (file.size > maxSize) {
+      return 'File size must be less than 5MB';
+    }
+    
+    return true;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
@@ -43,11 +68,37 @@ const WaitlistForm: React.FC = () => {
   };
 
   const handleRoleChange = (value: 'reader' | 'creator') => {
-    setFormData(prev => ({ ...prev, role: value }));
+    setFormData(prev => ({ 
+      ...prev, 
+      role: value,
+      // Reset role-specific fields when switching roles
+      suggestions: value === 'reader' ? prev.suggestions : '',
+      storyIdea: value === 'creator' ? prev.storyIdea : '',
+      hasAttachment: false
+    }));
+    
+    // Clear selected file when role changes
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleCheckboxChange = (checked: boolean) => {
     setFormData(prev => ({ ...prev, notifyCreatorTools: checked }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+    
+    const validation = validateFile(file);
+    if (typeof validation === 'string') {
+      setErrors(prev => ({ ...prev, file: validation }));
+    } else {
+      setErrors(prev => ({ ...prev, file: undefined }));
+      setFormData(prev => ({ ...prev, hasAttachment: !!file }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +114,11 @@ const WaitlistForm: React.FC = () => {
       newErrors.mobile = 'Please enter a valid 10-digit Indian mobile number';
     }
     
+    const fileValidation = validateFile(selectedFile);
+    if (typeof fileValidation === 'string') {
+      newErrors.file = fileValidation;
+    }
+    
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length > 0) {
@@ -72,7 +128,7 @@ const WaitlistForm: React.FC = () => {
     setIsSubmitting(true);
     
     // Submit form data
-    const success = await submitWaitlistForm(formData);
+    const success = await submitWaitlistForm(formData, selectedFile);
     
     if (success) {
       // Reset form on success
@@ -81,7 +137,14 @@ const WaitlistForm: React.FC = () => {
         email: '',
         mobile: '',
         notifyCreatorTools: false,
+        suggestions: '',
+        storyIdea: '',
+        hasAttachment: false,
       });
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
     
     setIsSubmitting(false);
@@ -159,23 +222,96 @@ const WaitlistForm: React.FC = () => {
                     )}
                   </div>
                   
-                  {formData.role === 'creator' && (
-                    <div className="flex items-start space-x-2">
-                      <Checkbox 
-                        id="notify" 
-                        checked={formData.notifyCreatorTools}
-                        onCheckedChange={handleCheckboxChange}
-                      />
-                      <div className="grid gap-1.5 leading-none">
-                        <Label
-                          htmlFor="notify"
-                          className="text-sm font-normal leading-snug cursor-pointer"
-                        >
-                          Notify me about creator tools and opportunities
-                        </Label>
+                  {/* Role-specific fields */}
+                  {formData.role === 'reader' && (
+                    <div className="space-y-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="suggestions">Suggestions / Feature Requests</Label>
+                        <span className="text-xs text-gray-500 ml-2">(Optional)</span>
                       </div>
+                      <Textarea
+                        id="suggestions"
+                        name="suggestions"
+                        placeholder="Share your ideas and what you'd like to see in Voomics"
+                        value={formData.suggestions}
+                        onChange={handleChange}
+                        className="min-h-[100px]"
+                      />
                     </div>
                   )}
+                  
+                  {formData.role === 'creator' && (
+                    <>
+                      <div className="space-y-2">
+                        <div className="flex items-center">
+                          <Label htmlFor="storyIdea">Your Story / Web Comics Idea</Label>
+                          <span className="text-xs text-gray-500 ml-2">(Optional)</span>
+                        </div>
+                        <Textarea
+                          id="storyIdea"
+                          name="storyIdea"
+                          placeholder="Tell us about your unique story or webcomic idea"
+                          value={formData.storyIdea}
+                          onChange={handleChange}
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center">
+                          <Label htmlFor="attachment">Attach Your Work</Label>
+                          <span className="text-xs text-gray-500 ml-2">(Optional)</span>
+                        </div>
+                        <Input
+                          id="attachment"
+                          name="attachment"
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept=".jpg,.jpeg,.png,.gif,.pdf"
+                          className="cursor-pointer"
+                        />
+                        <p className="text-xs text-gray-500">
+                          Max file size: 5MB. Supported formats: JPEG, PNG, GIF, PDF
+                        </p>
+                        {errors.file && (
+                          <p className="text-red-500 text-sm mt-1">{errors.file}</p>
+                        )}
+                        {selectedFile && (
+                          <p className="text-sm text-green-600">
+                            File selected: {selectedFile.name}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-start space-x-2">
+                        <Checkbox 
+                          id="notify" 
+                          checked={formData.notifyCreatorTools}
+                          onCheckedChange={handleCheckboxChange}
+                        />
+                        <div className="grid gap-1.5 leading-none">
+                          <Label
+                            htmlFor="notify"
+                            className="text-sm font-normal leading-snug cursor-pointer"
+                          >
+                            Notify me about creator tools and opportunities
+                          </Label>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Contact information shown for both roles */}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex items-start space-x-3">
+                    <Mail className="text-voomics-indigo mt-1" />
+                    <div>
+                      <p className="text-sm font-medium">Need more information?</p>
+                      <p className="text-sm text-gray-600">
+                        Email us at <a href="mailto:raja@voomics.com" className="text-voomics-red hover:underline">raja@voomics.com</a>
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="mt-8">
