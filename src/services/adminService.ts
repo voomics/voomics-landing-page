@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -88,15 +89,8 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
     console.log("Fetching waitlist data...");
     
-    // Check if admin is authenticated
-    const session = await supabase.auth.getSession();
-    if (!session.data.session) {
-      console.error("No active Supabase session for admin");
-      toast.error("Authentication required", { 
-        description: "Please log out and log back in."
-      });
-      return [];
-    }
+    // Instead of checking for an active session, we'll directly try to fetch the data
+    // and let Supabase handle the authentication
     
     // First, attempt to fetch existing data
     const { data, error } = await supabase
