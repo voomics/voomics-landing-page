@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,6 +11,16 @@ export interface WaitlistEntry {
   story_idea: string | null;
   file_url: string | null;
   created_at: string;
+}
+
+export interface WaitlistFormData {
+  role: 'reader' | 'creator';
+  email: string;
+  mobile: string;
+  notifyCreatorTools: boolean;
+  suggestions: string;
+  storyIdea: string;
+  hasAttachment: boolean;
 }
 
 export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
@@ -106,4 +115,74 @@ export const exportWaitlistToCsv = (waitlistData: WaitlistEntry[]): void => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+export const submitWaitlistForm = async (
+  formData: WaitlistFormData,
+  file: File | null
+): Promise<boolean> => {
+  try {
+    console.log("Submitting waitlist form...", formData);
+    
+    let fileUrl = null;
+    
+    // Upload file if present
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `waitlist/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('attachments')
+        .upload(filePath, file);
+        
+      if (uploadError) {
+        console.error("Error uploading file:", uploadError);
+        toast.error("File upload failed", {
+          description: "Could not upload your attachment."
+        });
+        return false;
+      }
+      
+      // Get public URL for the file
+      const { data } = supabase.storage
+        .from('attachments')
+        .getPublicUrl(filePath);
+        
+      fileUrl = data.publicUrl;
+    }
+    
+    // Insert record into waitlist table
+    const { error } = await supabase
+      .from('waitlist')
+      .insert({
+        email: formData.email,
+        role: formData.role,
+        mobile: formData.mobile || null,
+        notify_creator_tools: formData.notifyCreatorTools,
+        suggestions: formData.role === 'reader' ? formData.suggestions : null,
+        story_idea: formData.role === 'creator' ? formData.storyIdea : null,
+        file_url: fileUrl
+      });
+      
+    if (error) {
+      console.error("Error inserting waitlist entry:", error);
+      toast.error("Registration failed", {
+        description: "Could not add you to the waitlist. Please try again."
+      });
+      return false;
+    }
+    
+    toast.success("Registration successful", {
+      description: "You've been added to the waitlist!"
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Waitlist form submission error:", error);
+    toast.error("Registration error", {
+      description: "An unexpected error occurred. Please try again later."
+    });
+    return false;
+  }
 };
