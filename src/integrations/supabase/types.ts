@@ -13,26 +13,35 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          file_url: string | null
           id: string
           mobile: string | null
           notify_creator_tools: boolean | null
           role: string
+          story_idea: string | null
+          suggestions: string | null
         }
         Insert: {
           created_at?: string
           email: string
+          file_url?: string | null
           id?: string
           mobile?: string | null
           notify_creator_tools?: boolean | null
           role: string
+          story_idea?: string | null
+          suggestions?: string | null
         }
         Update: {
           created_at?: string
           email?: string
+          file_url?: string | null
           id?: string
           mobile?: string | null
           notify_creator_tools?: boolean | null
           role?: string
+          story_idea?: string | null
+          suggestions?: string | null
         }
         Relationships: []
       }
