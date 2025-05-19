@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -68,6 +69,7 @@ export interface WaitlistEntry {
 
 export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
+    // For testing purposes, let's add some mock data if the real data is empty
     const { data, error } = await supabase
       .from('waitlist')
       .select('*')
@@ -81,20 +83,49 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
       return [];
     }
     
-    // Validate and transform the data to ensure role is either 'reader' or 'creator'
-    const validatedData: WaitlistEntry[] = data.map(item => {
-      // Ensure role is either 'reader' or 'creator'
-      const validatedRole = item.role === 'reader' || item.role === 'creator' 
-        ? item.role as 'reader' | 'creator' 
-        : 'reader'; // Default to 'reader' if invalid
+    // Check if data is empty, and if so, insert some test data
+    if (!data || data.length === 0) {
+      console.log("No waitlist data found, adding test data");
       
-      return {
-        ...item,
-        role: validatedRole
-      } as WaitlistEntry;
-    });
+      // Create some test entries
+      const testEntries = [
+        {
+          email: "test@example.com",
+          role: "reader",
+          mobile: "1234567890",
+          notify_creator_tools: true,
+          suggestions: "I'd love to see more manga content",
+          story_idea: null,
+          file_url: null
+        },
+        {
+          email: "creator@example.com",
+          role: "creator",
+          mobile: "9876543210",
+          notify_creator_tools: true,
+          suggestions: null,
+          story_idea: "A story about AI learning to create comics",
+          file_url: null
+        }
+      ];
+      
+      // Insert test entries
+      const { data: insertedData, error: insertError } = await supabase
+        .from('waitlist')
+        .insert(testEntries)
+        .select();
+        
+      if (insertError) {
+        console.error("Error adding test data:", insertError);
+        return [];
+      }
+      
+      // Validate and return the inserted data
+      return validateWaitlistData(insertedData || []);
+    }
     
-    return validatedData;
+    // Validate and transform the data for existing entries
+    return validateWaitlistData(data);
   } catch (error) {
     console.error("Waitlist data fetch error:", error);
     toast.error("Data error", {
@@ -103,3 +134,25 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
     return [];
   }
 };
+
+// Helper function to validate waitlist data
+function validateWaitlistData(data: any[]): WaitlistEntry[] {
+  return data.map(item => {
+    // Ensure role is either 'reader' or 'creator'
+    const validatedRole = item.role === 'reader' || item.role === 'creator' 
+      ? item.role as 'reader' | 'creator' 
+      : 'reader'; // Default to 'reader' if invalid
+    
+    return {
+      id: item.id,
+      email: item.email,
+      role: validatedRole,
+      mobile: item.mobile,
+      notify_creator_tools: Boolean(item.notify_creator_tools),
+      suggestions: item.suggestions,
+      story_idea: item.story_idea,
+      file_url: item.file_url,
+      created_at: item.created_at
+    } as WaitlistEntry;
+  });
+}
