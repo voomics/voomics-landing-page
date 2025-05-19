@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,14 +11,14 @@ export const adminLogin = async (
   password: string
 ): Promise<AdminUser | null> => {
   try {
-    // Direct query to admin_users table instead of using an Edge Function
+    // Use the database function to authenticate admin with password
     const { data, error } = await supabase
-      .from('admin_users')
-      .select('id, email')
-      .eq('email', email)
-      .single();
+      .rpc('authenticate_admin', {
+        email_input: email,
+        password_input: password
+      });
 
-    if (error || !data) {
+    if (error || !data || data.length === 0) {
       console.error("Admin login failed:", error);
       toast.error("Login failed", {
         description: "Invalid email or password."
@@ -27,21 +26,7 @@ export const adminLogin = async (
       return null;
     }
 
-    // Set admin session using email/password
-    const { error: sessionError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (sessionError) {
-      console.error("Session creation failed:", sessionError);
-      toast.error("Session error", {
-        description: "Failed to create admin session."
-      });
-      return null;
-    }
-
-    const adminUser: AdminUser = data;
+    const adminUser: AdminUser = data[0];
     
     // Set local storage to maintain admin state
     localStorage.setItem('admin_user', JSON.stringify(adminUser));
@@ -63,7 +48,6 @@ export const getAdminUser = (): AdminUser | null => {
 
 export const adminLogout = async (): Promise<void> => {
   try {
-    await supabase.auth.signOut();
     localStorage.removeItem('admin_user');
   } catch (error) {
     console.error("Admin logout error:", error);
