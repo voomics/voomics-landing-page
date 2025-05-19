@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from "react";
-import { fetchWaitlistData } from "@/services/adminService";
+import { fetchWaitlistData, WaitlistEntry } from "@/services/adminService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChartContainer, ChartTooltip, ChartLegend } from "@/components/ui/chart";
@@ -9,18 +8,7 @@ import { Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STORAGE_URL } from "@/integrations/supabase/client";
 
-// Define the waitlist entry type
-interface WaitlistEntry {
-  id: string;
-  email: string;
-  role: 'reader' | 'creator';
-  mobile: string | null;
-  notify_creator_tools: boolean | null;
-  suggestions: string | null;
-  story_idea: string | null;
-  file_url: string | null;
-  created_at: string;
-}
+// Note: WaitlistEntry interface is now imported from adminService.ts
 
 const AdminDashboard = () => {
   const [waitlistData, setWaitlistData] = useState<WaitlistEntry[]>([]);

@@ -68,7 +68,19 @@ export const adminLogout = async (): Promise<void> => {
   }
 };
 
-export const fetchWaitlistData = async () => {
+export interface WaitlistEntry {
+  id: string;
+  email: string;
+  role: 'reader' | 'creator';
+  mobile: string | null;
+  notify_creator_tools: boolean | null;
+  suggestions: string | null;
+  story_idea: string | null;
+  file_url: string | null;
+  created_at: string;
+}
+
+export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
     const { data, error } = await supabase
       .from('waitlist')
@@ -83,7 +95,20 @@ export const fetchWaitlistData = async () => {
       return [];
     }
     
-    return data || [];
+    // Validate and transform the data to ensure role is either 'reader' or 'creator'
+    const validatedData: WaitlistEntry[] = data.map(item => {
+      // Ensure role is either 'reader' or 'creator'
+      const validatedRole = item.role === 'reader' || item.role === 'creator' 
+        ? item.role as 'reader' | 'creator' 
+        : 'reader'; // Default to 'reader' if invalid
+      
+      return {
+        ...item,
+        role: validatedRole
+      } as WaitlistEntry;
+    });
+    
+    return validatedData;
   } catch (error) {
     console.error("Waitlist data fetch error:", error);
     toast.error("Data error", {
