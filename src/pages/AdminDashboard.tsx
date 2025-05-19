@@ -7,6 +7,7 @@ import { ChartContainer, ChartTooltip, ChartLegend } from "@/components/ui/chart
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { STORAGE_URL } from "@/integrations/supabase/client";
 
 // Define the waitlist entry type
 interface WaitlistEntry {
@@ -276,7 +277,7 @@ const AdminDashboard = () => {
                     <TableCell>
                       {entry.file_url ? (
                         <a 
-                          href={`${supabase.storageUrl}/object/public/waitlist-uploads/${entry.file_url}`}
+                          href={`${STORAGE_URL}/waitlist-uploads/${entry.file_url}`}
                           target="_blank"
                           rel="noreferrer"
                           className="text-blue-600 hover:underline"

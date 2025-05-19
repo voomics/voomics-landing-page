@@ -13,9 +13,8 @@ export const adminLogin = async (
 ): Promise<AdminUser | null> => {
   try {
     // Use the RPC function to authenticate admin
-    const { data, error } = await supabase.rpc('authenticate_admin', {
-      email_input: email,
-      password_input: password,
+    const { data, error } = await supabase.functions.invoke('authenticate-admin', {
+      body: { email, password }
     });
 
     if (error || !data || data.length === 0) {
@@ -26,15 +25,10 @@ export const adminLogin = async (
       return null;
     }
 
-    // Set admin session using JWT
-    const { error: sessionError } = await supabase.auth.signIn({
+    // Set admin session using email/password
+    const { error: sessionError } = await supabase.auth.signInWithPassword({
       email,
       password
-    }, {
-      data: {
-        email: email,
-        is_admin: true
-      }
     });
 
     if (sessionError) {

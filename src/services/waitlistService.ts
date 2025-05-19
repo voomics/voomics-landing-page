@@ -1,5 +1,5 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, STORAGE_URL } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export interface WaitlistFormData {
@@ -25,7 +25,8 @@ export const submitWaitlistForm = async (data: WaitlistFormData, file?: File | n
       const fileName = `${role}_${Date.now()}.${fileExt}`;
       const filePath = `${role}/${fileName}`;
       
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError, data: uploadData } = await supabase
+        .storage
         .from('waitlist-uploads')
         .upload(filePath, file, {
           cacheControl: '3600',
