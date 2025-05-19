@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,6 +11,19 @@ export const adminLogin = async (
   password: string
 ): Promise<AdminUser | null> => {
   try {
+    console.log("Attempting admin login...");
+    
+    // First, sign in with Supabase to establish a session
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+    
+    if (authError) {
+      console.error("Supabase auth error:", authError);
+      // Don't show toast here yet, we'll try the DB authentication next
+    }
+    
     // Use the database function to authenticate admin with password
     const { data, error } = await supabase
       .rpc('authenticate_admin', {
@@ -31,22 +43,6 @@ export const adminLogin = async (
     
     // Set local storage to maintain admin state
     localStorage.setItem('admin_user', JSON.stringify(adminUser));
-    
-    // Sign in as the service role to bypass RLS
-    // This creates a special session for admin that can access all data
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-    
-    if (signInError) {
-      console.error("Error signing in with Supabase:", signInError);
-      toast.error("Authentication error", {
-        description: "Could not create secure session."
-      });
-      // We still return the admin user even if Supabase auth fails
-      // as the app uses local storage for admin state
-    }
     
     console.log("Admin login successful");
     return adminUser;
