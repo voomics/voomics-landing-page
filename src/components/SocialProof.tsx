@@ -36,12 +36,12 @@ const TestimonialCard: React.FC<TestimonialProps> = ({ content, author, handle, 
 const SocialProof: React.FC = () => {
   const testimonials = [
     {
-      content: "Finally, an Indian webcomics platform that gets our stories! The art style diversity is amazing. Can't wait for the full launch! 🇮🇳🔥",
+      content: "Finally, an Indian webcomics platform that gets our stories! Can't wait for the full launch! 🇮🇳🔥",
       author: "Priya Sharma",
       handle: "priyacomics"
     },
     {
-      content: "As a creator, I'm excited about Voomics' fair revenue model. Time for our desi stories to shine globally without losing rights!",
+      content: "As a creator, I'm excited about Voomics' revenue model. Time for our desi stories to shine globally without losing rights!",
       author: "Arjun Menon",
       handle: "artsyarjun"
     },

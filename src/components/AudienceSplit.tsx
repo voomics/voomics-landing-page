@@ -30,10 +30,6 @@ const AudienceSplit: React.FC = () => {
               </li>
               <li className="flex items-start">
                 <span className="text-voomics-saffron mr-2">✓</span>
-                <span>Access exclusive drops before anyone else</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-voomics-saffron mr-2">✓</span>
                 <span>From chai-powered chaat jokes to cosmic myth-punk – all in one swipe</span>
               </li>
             </ul>
