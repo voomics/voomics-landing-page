@@ -30,6 +30,51 @@ export type Database = {
         }
         Relationships: []
       }
+      page_analytics: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          id: string
+          os: string | null
+          page_path: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          os?: string | null
+          page_path?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          os?: string | null
+          page_path?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           created_at: string
@@ -68,7 +113,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_summary: {
+        Row: {
+          date: string | null
+          page_path: string | null
+          total_sessions: number | null
+          total_views: number | null
+          unique_visitors: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       authenticate_admin: {
@@ -76,6 +130,16 @@ export type Database = {
         Returns: {
           id: string
           email: string
+        }[]
+      }
+      get_overall_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_views: number
+          unique_visitors: number
+          total_sessions: number
+          today_views: number
+          today_unique_visitors: number
         }[]
       }
     }
