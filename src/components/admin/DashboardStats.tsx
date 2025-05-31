@@ -4,12 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchWaitlistData, WaitlistEntry } from "@/services/waitlistService";
 
 const DashboardStats = () => {
-  const { data: waitlistData = [], isLoading } = useQuery<WaitlistEntry[]>({
+  console.log("📊 DashboardStats component rendered");
+
+  const { data: waitlistData = [], isLoading, error } = useQuery<WaitlistEntry[]>({
     queryKey: ['waitlist'],
-    queryFn: fetchWaitlistData,
+    queryFn: () => {
+      console.log("📊 TanStack Query executing fetchWaitlistData...");
+      return fetchWaitlistData();
+    },
+  });
+
+  console.log("📊 DashboardStats query state:", { 
+    waitlistData, 
+    isLoading, 
+    error,
+    dataLength: waitlistData?.length 
   });
 
   if (isLoading) {
+    console.log("📊 DashboardStats showing loading state");
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {[...Array(5)].map((_, i) => (
@@ -22,12 +35,24 @@ const DashboardStats = () => {
     );
   }
 
+  if (error) {
+    console.error("💥 DashboardStats query error:", error);
+  }
+
   // Calculate statistics
   const totalSignups = waitlistData.length;
   const readerCount = waitlistData.filter(entry => entry.role === 'reader').length;
   const creatorCount = waitlistData.filter(entry => entry.role === 'creator').length;
   const mobileCount = waitlistData.filter(entry => entry.mobile).length;
   const notifyCount = waitlistData.filter(entry => entry.notify_creator_tools).length;
+
+  console.log("📊 Calculated statistics:", {
+    totalSignups,
+    readerCount,
+    creatorCount,
+    mobileCount,
+    notifyCount
+  });
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

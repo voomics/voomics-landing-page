@@ -17,6 +17,10 @@ interface WaitlistTableProps {
 }
 
 export const WaitlistTable = ({ waitlistData }: WaitlistTableProps) => {
+  console.log("📊 WaitlistTable component rendered");
+  console.log("📊 Received waitlistData:", waitlistData);
+  console.log("📊 Data length:", waitlistData?.length || 0);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRole, setFilterRole] = useState<string>("all");
   const [showMobileOnly, setShowMobileOnly] = useState(false);
@@ -41,6 +45,9 @@ export const WaitlistTable = ({ waitlistData }: WaitlistTableProps) => {
     
     return matchesSearch && matchesRole && matchesMobile && matchesNotification;
   });
+
+  console.log("📊 Filtered data:", filteredData);
+  console.log("📊 Filtered data length:", filteredData.length);
   
   return (
     <div className="space-y-4">
@@ -119,66 +126,78 @@ export const WaitlistTable = ({ waitlistData }: WaitlistTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((entry) => (
-              <TableRow key={entry.id} className="group">
-                <TableCell className="font-medium">{entry.email}</TableCell>
-                <TableCell>
-                  <Badge variant={entry.role === 'reader' ? 'secondary' : 'default'}>
-                    {entry.role}
-                  </Badge>
-                </TableCell>
-                <TableCell>{entry.mobile || "-"}</TableCell>
-                <TableCell>{entry.notify_creator_tools ? "Yes" : "No"}</TableCell>
-                <TableCell>{new Date(entry.created_at).toLocaleDateString()}</TableCell>
-                <TableCell className="relative max-w-xs truncate p-0 transition-all">
-                  <Collapsible className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate">
-                        {entry.role === 'reader' ? entry.suggestions : entry.story_idea || "-"}
-                      </span>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm" className="ml-auto h-8 w-8 p-0 opacity-0 group-hover:opacity-100">
-                          <span className="sr-only">View details</span>
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </CollapsibleTrigger>
-                    </div>
-                    <CollapsibleContent className="mt-2 space-y-2 text-sm">
-                      {entry.role === 'reader' ? (
-                        <div>
-                          <p className="font-medium text-muted-foreground">Suggestions:</p>
-                          <p className="whitespace-pre-wrap">{entry.suggestions || "-"}</p>
-                        </div>
-                      ) : (
-                        <>
+            {filteredData.map((entry) => {
+              console.log("📊 Rendering table row for entry:", entry);
+              return (
+                <TableRow key={entry.id} className="group">
+                  <TableCell className="font-medium">{entry.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={entry.role === 'reader' ? 'secondary' : 'default'}>
+                      {entry.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{entry.mobile || "-"}</TableCell>
+                  <TableCell>{entry.notify_creator_tools ? "Yes" : "No"}</TableCell>
+                  <TableCell>{new Date(entry.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="relative max-w-xs truncate p-0 transition-all">
+                    <Collapsible className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate">
+                          {entry.role === 'reader' ? entry.suggestions : entry.story_idea || "-"}
+                        </span>
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm" className="ml-auto h-8 w-8 p-0 opacity-0 group-hover:opacity-100">
+                            <span className="sr-only">View details</span>
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </CollapsibleTrigger>
+                      </div>
+                      <CollapsibleContent className="mt-2 space-y-2 text-sm">
+                        {entry.role === 'reader' ? (
                           <div>
-                            <p className="font-medium text-muted-foreground">Story Idea:</p>
-                            <p className="whitespace-pre-wrap">{entry.story_idea || "-"}</p>
+                            <p className="font-medium text-muted-foreground">Suggestions:</p>
+                            <p className="whitespace-pre-wrap">{entry.suggestions || "-"}</p>
                           </div>
-                          {entry.file_url && (
+                        ) : (
+                          <>
                             <div>
-                              <p className="font-medium text-muted-foreground">Attached File:</p>
-                              <a 
-                                href={`${STORAGE_URL}/waitlist-uploads/${entry.file_url}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-                              >
-                                View File <ExternalLink className="h-3 w-3" />
-                              </a>
+                              <p className="font-medium text-muted-foreground">Story Idea:</p>
+                              <p className="whitespace-pre-wrap">{entry.story_idea || "-"}</p>
                             </div>
-                          )}
-                        </>
-                      )}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </TableCell>
-              </TableRow>
-            ))}
+                            {entry.file_url && (
+                              <div>
+                                <p className="font-medium text-muted-foreground">Attached File:</p>
+                                <a 
+                                  href={`${STORAGE_URL}/waitlist-uploads/${entry.file_url}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                                >
+                                  View File <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
             {filteredData.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center">
-                  No results found.
+                  {waitlistData.length === 0 ? (
+                    <div>
+                      <p>No waitlist data found.</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Debug: Original data length: {waitlistData.length}
+                      </p>
+                    </div>
+                  ) : (
+                    "No results found with current filters."
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -187,6 +206,10 @@ export const WaitlistTable = ({ waitlistData }: WaitlistTableProps) => {
       </div>
       <div className="text-center text-sm text-muted-foreground">
         Showing {filteredData.length} of {waitlistData.length} entries
+        <br />
+        <span className="text-xs text-gray-400">
+          Debug info: Original data: {waitlistData.length}, Filtered: {filteredData.length}
+        </span>
       </div>
     </div>
   );

@@ -25,25 +25,44 @@ export interface WaitlistFormData {
 
 export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
-    console.log("Fetching waitlist data...");
+    console.log("🔄 Starting fetchWaitlistData...");
+    console.log("📊 Supabase client status:", supabase ? "✅ Available" : "❌ Missing");
     
     const { data, error } = await supabase
       .from('waitlist')
       .select('*')
       .order('created_at', { ascending: false });
       
+    console.log("📡 Supabase query completed");
+    console.log("📊 Raw response data:", data);
+    console.log("❌ Query error:", error);
+    
     if (error) {
-      console.error("Error fetching waitlist data:", error);
+      console.error("💥 Error fetching waitlist data:", error);
+      console.error("💥 Error details:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       toast.error("Data fetch failed", {
         description: "Could not retrieve waitlist data."
       });
       return [];
     }
     
-    console.log("Waitlist data retrieved:", data?.length || 0, "entries");
-    return validateWaitlistData(data || []);
+    console.log("✅ Waitlist data retrieved successfully");
+    console.log("📈 Number of entries:", data?.length || 0);
+    console.log("📋 First entry sample:", data?.[0]);
+    
+    const validatedData = validateWaitlistData(data || []);
+    console.log("✅ Data validation completed");
+    console.log("📊 Validated entries count:", validatedData.length);
+    
+    return validatedData;
   } catch (error) {
-    console.error("Waitlist data fetch error:", error);
+    console.error("💥 Waitlist data fetch error:", error);
+    console.error("💥 Error stack:", error instanceof Error ? error.stack : 'No stack trace');
     toast.error("Data error", {
       description: "An unexpected error occurred while fetching data."
     });
@@ -53,13 +72,22 @@ export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
 
 // Helper function to validate waitlist data
 function validateWaitlistData(data: any[]): WaitlistEntry[] {
-  return data.map(item => {
+  console.log("🔍 Starting data validation...");
+  console.log("📊 Input data length:", data.length);
+  
+  const validated = data.map((item, index) => {
+    console.log(`🔍 Validating item ${index}:`, item);
+    
     // Ensure role is either 'reader' or 'creator'
     const validatedRole = item.role === 'reader' || item.role === 'creator' 
       ? item.role as 'reader' | 'creator' 
       : 'reader'; // Default to 'reader' if invalid
     
-    return {
+    if (item.role !== validatedRole) {
+      console.warn(`⚠️ Invalid role '${item.role}' for item ${index}, defaulting to 'reader'`);
+    }
+    
+    const validated = {
       id: item.id,
       email: item.email,
       role: validatedRole,
@@ -70,7 +98,13 @@ function validateWaitlistData(data: any[]): WaitlistEntry[] {
       file_url: item.file_url,
       created_at: item.created_at
     } as WaitlistEntry;
+    
+    console.log(`✅ Validated item ${index}:`, validated);
+    return validated;
   });
+  
+  console.log("✅ All data validated successfully");
+  return validated;
 }
 
 export const exportWaitlistToCsv = (waitlistData: WaitlistEntry[]): void => {
