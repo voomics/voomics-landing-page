@@ -1,15 +1,17 @@
 
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartLegend } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-import { WaitlistEntry } from "@/services/waitlistService";
+import { getWaitlistEntries } from "@/services/waitlistService";
 
-interface WaitlistChartsProps {
-  waitlistData: WaitlistEntry[];
-}
+const WaitlistCharts = () => {
+  const { data: waitlistData = [], isLoading } = useQuery({
+    queryKey: ['waitlist'],
+    queryFn: getWaitlistEntries,
+  });
 
-export const WaitlistCharts = ({ waitlistData }: WaitlistChartsProps) => {
   // Prepare data for role distribution chart
   const roleDistributionData = useMemo(() => {
     if (!waitlistData.length) return [];
@@ -68,6 +70,19 @@ export const WaitlistCharts = ({ waitlistData }: WaitlistChartsProps) => {
 
   // Colors for charts
   const COLORS = ["#4f46e5", "#10b981", "#f59e0b", "#ef4444"];
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardHeader className="h-20 bg-gray-200 rounded-t-lg"></CardHeader>
+            <CardContent className="h-80 bg-gray-100"></CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -155,3 +170,5 @@ export const WaitlistCharts = ({ waitlistData }: WaitlistChartsProps) => {
     </div>
   );
 };
+
+export default WaitlistCharts;

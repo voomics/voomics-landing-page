@@ -1,12 +1,27 @@
 
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { WaitlistEntry } from "@/services/waitlistService";
+import { getWaitlistEntries } from "@/services/waitlistService";
 
-interface DashboardStatsProps {
-  waitlistData: WaitlistEntry[];
-}
+const DashboardStats = () => {
+  const { data: waitlistData = [], isLoading } = useQuery({
+    queryKey: ['waitlist'],
+    queryFn: getWaitlistEntries,
+  });
 
-export const DashboardStats = ({ waitlistData }: DashboardStatsProps) => {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardHeader className="h-16 bg-gray-200 rounded-t-lg"></CardHeader>
+            <CardContent className="h-12 bg-gray-100"></CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   // Calculate statistics
   const totalSignups = waitlistData.length;
   const readerCount = waitlistData.filter(entry => entry.role === 'reader').length;
@@ -75,3 +90,5 @@ export const DashboardStats = ({ waitlistData }: DashboardStatsProps) => {
     </div>
   );
 };
+
+export default DashboardStats;
