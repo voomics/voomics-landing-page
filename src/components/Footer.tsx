@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
+import ViewCounter from './ViewCounter';
 
 const Footer: React.FC = () => {
   return (
@@ -81,7 +82,8 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-white/10 mt-8 pt-8 text-center">
-          <p className="text-white/60 text-sm">
+          <ViewCounter />
+          <p className="text-white/60 text-sm mt-4">
             Building Voomics with the community – follow our journey.
           </p>
           <p className="text-white/60 text-xs mt-4">
