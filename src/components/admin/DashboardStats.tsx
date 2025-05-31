@@ -1,12 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getWaitlistEntries } from "@/services/waitlistService";
+import { fetchWaitlistData, WaitlistEntry } from "@/services/waitlistService";
 
 const DashboardStats = () => {
-  const { data: waitlistData = [], isLoading } = useQuery({
+  const { data: waitlistData = [], isLoading } = useQuery<WaitlistEntry[]>({
     queryKey: ['waitlist'],
-    queryFn: getWaitlistEntries,
+    queryFn: fetchWaitlistData,
   });
 
   if (isLoading) {

@@ -4,12 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartLegend } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-import { getWaitlistEntries } from "@/services/waitlistService";
+import { fetchWaitlistData, WaitlistEntry } from "@/services/waitlistService";
 
 const WaitlistCharts = () => {
-  const { data: waitlistData = [], isLoading } = useQuery({
+  const { data: waitlistData = [], isLoading } = useQuery<WaitlistEntry[]>({
     queryKey: ['waitlist'],
-    queryFn: getWaitlistEntries,
+    queryFn: fetchWaitlistData,
   });
 
   // Prepare data for role distribution chart
