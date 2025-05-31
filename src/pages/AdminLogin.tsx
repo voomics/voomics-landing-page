@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Lock } from "lucide-react";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { adminUser, isLoading, login } = useAdminAuth();
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, password);
+    const success = await login(username, password);
     if (success) {
       navigate("/admin/dashboard");
     }
@@ -55,16 +55,16 @@ const AdminLogin = () => {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="email">
-                  Email
+                <label className="text-sm font-medium" htmlFor="username">
+                  Username
                 </label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="Enter username"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -75,6 +75,7 @@ const AdminLogin = () => {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Enter password"
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -100,7 +101,7 @@ const AdminLogin = () => {
         </Card>
         
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          For Voomics administrators only. Not for general users.
+          For Voomics administrators only. Use username: raja, password: raja
         </p>
       </div>
     </div>

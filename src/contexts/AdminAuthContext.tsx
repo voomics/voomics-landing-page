@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export interface AdminUser {
@@ -11,7 +10,7 @@ export interface AdminUser {
 interface AdminAuthContextType {
   adminUser: AdminUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -32,20 +31,13 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // Check for existing session
     const checkSession = async () => {
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        
-        if (sessionData.session) {
-          // If we have a session, get the admin user from localStorage
-          const storedUser = localStorage.getItem('admin_user');
-          if (storedUser) {
-            setAdminUser(JSON.parse(storedUser));
-          } else {
-            // If no stored user but we have a session, clear the session
-            await supabase.auth.signOut();
-          }
+        const storedUser = localStorage.getItem('admin_user');
+        if (storedUser) {
+          setAdminUser(JSON.parse(storedUser));
         }
       } catch (error) {
         console.error("Error checking admin session:", error);
+        localStorage.removeItem('admin_user');
       } finally {
         setIsLoading(false);
       }
@@ -54,50 +46,31 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     checkSession();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
       
-      // First sign in with Supabase auth
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (authError) {
-        console.error("Supabase auth error:", authError);
-        toast.error("Login failed", {
-          description: "Invalid email or password."
-        });
-        return false;
-      }
-      
-      // Then authenticate against admin DB function
-      const { data, error } = await supabase.rpc('authenticate_admin', {
-        email_input: email,
-        password_input: password
-      });
-      
-      if (error || !data || data.length === 0) {
-        // If admin authentication fails, sign out from Supabase auth
-        await supabase.auth.signOut();
+      // Simple username/password check
+      if (username === "raja" && password === "raja") {
+        const adminUserData: AdminUser = {
+          id: "admin-raja",
+          email: "raja@admin.com"
+        };
         
-        console.error("Admin login failed:", error);
+        localStorage.setItem('admin_user', JSON.stringify(adminUserData));
+        setAdminUser(adminUserData);
+        
+        toast.success("Login successful", {
+          description: "Welcome to the admin dashboard."
+        });
+        
+        return true;
+      } else {
         toast.error("Login failed", {
-          description: "Invalid admin credentials."
+          description: "Invalid username or password."
         });
         return false;
       }
-      
-      const adminUserData = data[0] as AdminUser;
-      localStorage.setItem('admin_user', JSON.stringify(adminUserData));
-      setAdminUser(adminUserData);
-      
-      toast.success("Login successful", {
-        description: "Welcome to the admin dashboard."
-      });
-      
-      return true;
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Login error", {
@@ -113,7 +86,6 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       setIsLoading(true);
       localStorage.removeItem('admin_user');
-      await supabase.auth.signOut();
       setAdminUser(null);
       
       toast.success("Logged out successfully");
