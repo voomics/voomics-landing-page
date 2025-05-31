@@ -4,7 +4,12 @@ import DashboardStats from '@/components/admin/DashboardStats';
 import WaitlistCharts from '@/components/admin/WaitlistCharts';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
+console.log("🏠 AdminDashboard component file loaded");
+
 const AdminDashboard: React.FC = () => {
+  console.log("🏠 AdminDashboard component rendering...");
+  console.log("🏠 AdminDashboard component props and state check");
+  
   return (
     <div className="space-y-8">
       <div>
@@ -25,5 +30,7 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 };
+
+console.log("🏠 AdminDashboard component exported");
 
 export default AdminDashboard;

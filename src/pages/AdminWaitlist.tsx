@@ -4,11 +4,18 @@ import { fetchWaitlistData, WaitlistEntry } from "@/services/waitlistService";
 import { Loader2 } from "lucide-react";
 import { WaitlistTable } from "@/components/admin/WaitlistTable";
 
+console.log("📋 AdminWaitlist component file loaded");
+
 const AdminWaitlist = () => {
   console.log("📋 AdminWaitlist component rendered");
   
   const [waitlistData, setWaitlistData] = useState<WaitlistEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  console.log("📋 AdminWaitlist initial state:", { 
+    waitlistDataLength: waitlistData.length, 
+    isLoading 
+  });
 
   useEffect(() => {
     console.log("📋 AdminWaitlist useEffect triggered");
@@ -16,18 +23,21 @@ const AdminWaitlist = () => {
     const loadData = async () => {
       try {
         console.log("📋 Starting to load waitlist data...");
+        console.log("📋 About to call fetchWaitlistData...");
         const data = await fetchWaitlistData();
         console.log("📋 Waitlist data loaded:", data);
         console.log("📋 Number of entries received:", data.length);
         setWaitlistData(data);
       } catch (error) {
         console.error("💥 Error loading waitlist data:", error);
+        console.error("💥 Error stack:", error instanceof Error ? error.stack : 'No stack');
       } finally {
         console.log("📋 Setting loading to false");
         setIsLoading(false);
       }
     };
 
+    console.log("📋 Calling loadData function...");
     loadData();
   }, []);
 
@@ -64,5 +74,7 @@ const AdminWaitlist = () => {
     </div>
   );
 };
+
+console.log("📋 AdminWaitlist component exported");
 
 export default AdminWaitlist;

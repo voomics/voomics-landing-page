@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+console.log("🔄 waitlistService.ts file loaded");
+console.log("🔄 Supabase client imported:", supabase ? "✅ Success" : "❌ Failed");
+
 export interface WaitlistEntry {
   id: string;
   email: string;
@@ -25,8 +28,9 @@ export interface WaitlistFormData {
 
 export const fetchWaitlistData = async (): Promise<WaitlistEntry[]> => {
   try {
-    console.log("🔄 Starting fetchWaitlistData...");
+    console.log("🔄 fetchWaitlistData function called");
     console.log("📊 Supabase client status:", supabase ? "✅ Available" : "❌ Missing");
+    console.log("📊 About to make Supabase query...");
     
     const { data, error } = await supabase
       .from('waitlist')
@@ -220,3 +224,5 @@ export const submitWaitlistForm = async (
     return false;
   }
 };
+
+console.log("🔄 waitlistService.ts file fully loaded and exported");
