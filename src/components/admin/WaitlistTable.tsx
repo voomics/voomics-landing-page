@@ -167,8 +167,8 @@ export const WaitlistTable = ({ waitlistData }: WaitlistTableProps) => {
                             {entry.file_url && (
                               <div>
                                 <p className="font-medium text-muted-foreground">Attached File:</p>
-                                <a 
-                                  href={`${STORAGE_URL}/waitlist-uploads/${entry.file_url}`}
+                                <a
+                                  href={entry.file_url}
                                   target="_blank"
                                   rel="noreferrer"
                                   className="inline-flex items-center gap-1 text-blue-600 hover:underline"
